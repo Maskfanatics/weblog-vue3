@@ -3,9 +3,13 @@ import App from '@/App.vue'     // 引入 App.vue 组件
 import '@/assets/main.css'      // 引入 main.css 样式文件
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'animate.css'
+import 'nprogress/nprogress.css'
 
 // 导入路由
 import router from '@/router'
+
+// 导入路由收尾
+import '@/permission'
 
 const app = createApp(App)
 
