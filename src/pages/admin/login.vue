@@ -51,8 +51,11 @@ import { login } from '@/api/admin/user';
 import { ref,reactive,onMounted, onBeforeUnmount } from 'vue';
 import router from '@/router';
 import { showMessage} from '@/composables/util'
-import { setToken } from '@/composables/auth';
+import { setToken } from '@/composables/cookie';
+import { useUserStore } from '@/stores/user'
 
+
+const userStore = useUserStore()
 
 // 登录按钮加载
 const loading = ref(false)
@@ -118,6 +121,7 @@ const onSubmit= () => {
         if (res.success == true) {
             let token = res.data.token
             setToken(token)
+            userStore.setUserInfo()
             showMessage('登录成功')
             // 跳转到后台首页
             router.push('/admin/index')
