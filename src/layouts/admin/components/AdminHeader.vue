@@ -1,4 +1,7 @@
 <template>
+    <!-- 固钉组件，通过设置 offset 属性来改变吸顶距离，默认值为 0。 -->
+<el-affix :offset="0">
+
     <!-- 设置背景色为白色、高度为 64px，padding-right 为 4， border-bottom 为 slate 100 -->
     <div class="bg-white h-[64px] flex pr-4 border-b border-slate-100">
         <!-- 左边栏收缩、展开 -->
@@ -53,7 +56,7 @@
             </el-dropdown>
         </div>
     </div>
-
+</el-affix>        
     <FormDialog ref="formDialogRef" title="修改密码" destroyOnClose @submit="onSubmit">
         <el-form ref="formRef" :rules="rules" :model="form">
             <el-form-item label="用户名" prop="username" label-width="120px">
