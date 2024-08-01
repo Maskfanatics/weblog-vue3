@@ -2,7 +2,7 @@
     <div>
         <!-- 卡片组件， shadow="never" 指定 card 卡片组件没有阴影 -->
         <el-card shadow="never">
-            <el-form :model="form" label-width="160px" :rules="rules">
+            <el-form ref="formRef" :model="form" label-width="160px" :rules="rules">
                 <el-form-item label="博客名称" prop="name">
                     <el-input v-model="form.name" clearable />
                 </el-form-item>
@@ -90,9 +90,9 @@ const isZhihuChecked = ref(false)
 const isCSDNChecked = ref(false)
 // 是否显示保存按钮的 loading 状态，默认为 false
 const btnLoading = ref(false)
+
 // 表单引用
 const formRef = ref(null)
-
 // 表单对象
 const form = reactive({
     name: '',
@@ -145,9 +145,8 @@ const csdnSwitchChange = (checked) => {
 
 // 初始化博客设置数据，并渲染到页面上
 function initBlogSettings() {
-    // 请求后台接口
     getBlogSettingsDetail().then((e) => {
-        if (e.success == true) {
+        if (e.success = true) {
             // 设置表单数据
             form.name = e.data.name
             form.author = e.data.author
@@ -155,7 +154,7 @@ function initBlogSettings() {
             form.avatar = e.data.avatar
             form.introduction = e.data.introduction
 
-            // 第三方平台信息设置，先判断后端返回平台链接是否为空，若不为空，则将 switch 组件置为选中状态，并设置表单对应数据
+            // 第三方平台信息设置
             if (e.data.githubHomepage) {
                 isGithubChecked.value = true
                 form.githubHomepage = e.data.githubHomepage
@@ -178,7 +177,6 @@ function initBlogSettings() {
         }
     })
 }
-// 手动调用一下初始化方法
 initBlogSettings()
 
 // 上传 logo 图片
@@ -240,13 +238,15 @@ const onSubmit = () => {
                 showMessage(message, 'error')
                 return
             }
-
+            
             // 重新渲染页面中的信息
             initBlogSettings()
             showMessage('保存成功')
         }).finally(() => btnLoading.value = false) // 隐藏保存按钮 loading
     })
 }
+
+
 </script>
 
 <style scoped>

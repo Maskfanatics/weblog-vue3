@@ -4,7 +4,7 @@ import AdminIndex from '@/pages/admin/index.vue'
 import AdminArticleList from '@/pages/admin/article-list.vue'
 import AdminCategoryList from '@/pages/admin/category-list.vue'
 import AdminTagList from '@/pages/admin/tag-list.vue'
-import AdminBlogSetting from '@/pages/admin/blog-settings.vue'
+import AdminBlogSettings from '@/pages/admin/blog-settings.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Admin from '@/layouts/admin/admin.vue'
 
@@ -58,14 +58,14 @@ const routes = [
                 }
             },
             {
-                path: "/admin/blog/setting",
-                component: AdminBlogSetting,
+                path: "/admin/blog/settings",
+                component: AdminBlogSettings,
                 meta: {
                     title: '博客设置'
                 }
             },
         ]
-
+        
     }
 ]
 
@@ -74,7 +74,7 @@ const router = createRouter({
     // 指定路由的历史管理方式，hash 模式指的是 URL 的路径是通过 hash 符号（#）进行标识
     history: createWebHashHistory(),
     // routes: routes 的缩写
-    routes,
+    routes, 
 })
 
 // 暴露出去

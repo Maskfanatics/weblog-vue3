@@ -36,7 +36,7 @@
                     <template #default="scope">
                         <el-image style="width: 100px;" :src="scope.row.cover" />
                     </template>
-            </el-table-column>
+                </el-table-column>
                 <el-table-column prop="createTime" label="发布时间" width="180" />
                 <el-table-column label="操作">
                     <template #default="scope">

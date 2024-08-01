@@ -1,5 +1,5 @@
 <template>
-    <div class=" overflow-y-auto fixed bg-slate-800 h-screen text-white menu-container transition-all" :style="{ width: menuStore.menuWidth }" >
+    <div class="fixed overflow-y-auto bg-slate-800 h-screen text-white menu-container transition-all duration-300 shadow-2xl" :style="{ width: menuStore.menuWidth }">
         <!-- 顶部 Logo, 指定高度为 64px, 和右边的 Header 头保持一样高 -->
         <div class="flex items-center justify-center h-[64px]">
             <img v-if="menuStore.menuWidth == '250px'" src="@/assets/weblog-logo.png" class="h-[60px]">
@@ -18,19 +18,29 @@
                 </el-menu-item>
             </template>
         </el-menu>
-</div>
-</template>
+
+</div></template>
 
 <script setup>
-
-import { ref,computed } from 'vue'
-import { useRoute,useRouter } from 'vue-router'
-import { useMenuStore } from '@/stores/menu';
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useMenuStore } from '@/stores/menu'
 
 const menuStore = useMenuStore()
 
+const route = useRoute()
+const router = useRouter()
+
 // 是否折叠
 const isCollapse = computed(() =>  !(menuStore.menuWidth == '250px'))
+
+// 根据路由地址判断哪个菜单被选中
+const defaultActive = ref(route.path)
+
+// 菜单选择事件
+const handleSelect = (path) => {
+    router.push(path)
+}
 
 const menus = [
     {
@@ -56,21 +66,9 @@ const menus = [
     {
         'name': '博客设置',
         'icon': 'Setting',
-        'path': '/admin/blog/setting',
+        'path': '/admin/blog/settings',
     },
 ]
-
-const route = useRoute()
-const router = useRouter()
-
-// 根据路由地址判断哪个菜单被选中
-const defaultActive = ref(route.path)
-
-// 菜单选择事件
-const handleSelect = (path) => {
-    router.push(path)
-}
-
 </script>
 
 <style>
@@ -87,12 +85,19 @@ const handleSelect = (path) => {
     background-color: #ffffff10;
 }
 
+
 .el-menu-item.is-active {
-    background-color: var(--el-color-primary);
+    background-color: #409eff10;
     color: #fff;
 }
 
-.el-menu-item.is-active:hover {
+.el-menu-item.is-active:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
     background-color: var(--el-color-primary);
 }
 

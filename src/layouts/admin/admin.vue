@@ -3,7 +3,7 @@
     <el-container>
     
         <!-- 左边侧边栏 -->
-        <el-aside :width='menuStore.menuWidth' class="transition-all">
+        <el-aside :width='menuStore.menuWidth' class="transition-all duration-300">
             <AdminMenu></AdminMenu>
         </el-aside>
         
@@ -39,19 +39,26 @@
 </template>
 
 <script setup>
-    import AdminFooter from './components/AdminFooter.vue';
-    import AdminHeader from './components/AdminHeader.vue';
-    import AdminMenu from './components/AdminMenu.vue';
-    import AdminTagList from './components/AdminTagList.vue';
-    import { useMenuStore } from '@/stores/menu'
+// 引入组件
+import AdminFooter from './components/AdminFooter.vue';
+import AdminHeader from './components/AdminHeader.vue';
+import AdminMenu from './components/AdminMenu.vue';
+import AdminTagList from './components/AdminTagList.vue';
 
-    const menuStore = useMenuStore()
+import { useMenuStore } from '@/stores/menu'
+
+const menuStore = useMenuStore()
 </script>
 
 <style scoped>
 .el-header {
     padding: 0!important;
 }
+
+.el-footer {
+    padding: 0!important;
+}
+
 /* 内容区域过渡动画：淡入淡出效果 */
 /* 刚开始进入时 */
 .fade-enter-from {
