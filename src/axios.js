@@ -1,6 +1,7 @@
 import axios from "axios";
-import { getToken, removeToken } from "./composables/cookie";
-import { showMessage } from "./composables/util";
+import { getToken } from "@/composables/cookie"
+import { showMessage} from '@/composables/util'
+import { useUserStore } from '@/stores/user'
 
 // 创建 Axios 实例
 const instance = axios.create({
@@ -8,13 +9,16 @@ const instance = axios.create({
     timeout: 7000, // 请求超时时间
 })
 
+
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
     // 在发送请求之前做些什么
-    let token = getToken()
+    const token = getToken()
     console.log('统一添加请求头中的 Token:' + token)
-    // 当token不为空时
+
+    // 当 token 不为空时
     if (token) {
+        // 添加请求头, key 为 Authorization，value 值的前缀为 'Bearer '
         config.headers['Authorization'] = 'Bearer ' + token
     }
 
@@ -36,8 +40,9 @@ instance.interceptors.response.use(function (response) {
 
     // 状态码 401
     if (status == 401) {
-        // 删除 cookie 中的令牌
-        removeToken()
+        // 退出登录
+        let userStore = useUserStore()
+        userStore.logout()
         // 刷新页面
         location.reload()
     }

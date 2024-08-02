@@ -31,6 +31,7 @@
 
             <!-- 分页列表 -->
             <el-table :data="tableData" border stripe style="width: 100%" v-loading="tableLoading">
+                <el-table-column prop="id" label="ID" width="50" />
                 <el-table-column prop="title" label="标题" width="380" />
                 <el-table-column prop="cover" label="封面" width="180">
                     <template #default="scope">
@@ -45,6 +46,11 @@
                                 <Edit />
                             </el-icon>
                             编辑</el-button>
+                            <el-button size="small" @click="goArticleDetailPage(scope.row.id)">
+                            <el-icon class="mr-1">
+                                <View />
+                            </el-icon>
+                            预览</el-button>
                         <el-button type="danger" size="small" @click="deleteArticleSubmit(scope.row)">
                             <el-icon class="mr-1">
                                 <Delete />
@@ -63,6 +69,7 @@
             </div>
 
         </el-card>
+
         <!-- 写博客 -->
         <el-dialog v-model="isArticlePublishEditorShow" :fullscreen="true" :show-close="false"
             :close-on-press-escape="false">
@@ -86,7 +93,7 @@
                     </div>
                 </el-affix>
             </template>
-            This is dialog content.
+            <!-- label-position="top" 用于指定 label 元素在上面 -->
             <el-form :model="form" ref="publishArticleFormRef" label-position="top" size="large" :rules="rules">
                 <el-form-item label="标题" prop="title">
                     <el-input v-model="form.title" autocomplete="off" size="large" maxlength="40" show-word-limit
@@ -94,6 +101,7 @@
                 </el-form-item>
                 <el-form-item label="内容" prop="content">
                     <!-- Markdown 编辑器 -->
+                    <MdEditor v-model="form.content" @onUploadImg="onUploadImg" editorId="publishArticleEditor" />
                 </el-form-item>
                 <el-form-item label="封面" prop="cover">
                     <el-upload class="avatar-uploader" action="#" :on-change="handleCoverChange" :auto-upload="false"
@@ -110,8 +118,7 @@
                 </el-form-item>
                 <el-form-item label="分类" prop="categoryId">
                     <el-select v-model="form.categoryId" clearable placeholder="---请选择---" size="large">
-                        <el-option v-for="item in categories" :key="item.value" :label="item.label"
-                            :value="item.value" />
+                        <el-option v-for="item in categories" :key="item.value" :label="item.label" :value="item.value" />
                     </el-select>
                 </el-form-item>
                 <el-form-item label="标签" prop="tags">
@@ -123,10 +130,6 @@
                             <el-option v-for="item in tags" :key="item.value" :label="item.label" :value="item.value" />
                         </el-select>
                     </span>
-                </el-form-item>
-                <el-form-item label="内容" prop="content">
-                    <!-- Markdown 编辑器 -->
-                    <MdEditor v-model="form.content" @onUploadImg="onUploadImg" editorId="publishArticleEditor" />
                 </el-form-item>
             </el-form>
         </el-dialog>
@@ -155,8 +158,7 @@
                 </el-affix>
             </template>
             <!-- label-position="top" 用于指定 label 元素在上面 -->
-            <el-form :model="updateArticleForm" ref="updateArticleFormRef" label-position="top" size="large"
-                :rules="rules">
+            <el-form :model="updateArticleForm" ref="updateArticleFormRef" label-position="top" size="large" :rules="rules">
                 <el-form-item label="标题" prop="title">
                     <el-input v-model="updateArticleForm.title" autocomplete="off" size="large" maxlength="40"
                         show-word-limit clearable />
@@ -167,8 +169,8 @@
                         editorId="updateArticleEditor" />
                 </el-form-item>
                 <el-form-item label="封面" prop="cover">
-                    <el-upload class="avatar-uploader" action="#" :on-change="handleUpdateCoverChange"
-                        :auto-upload="false" :show-file-list="false">
+                    <el-upload class="avatar-uploader" action="#" :on-change="handleUpdateCoverChange" :auto-upload="false"
+                        :show-file-list="false">
                         <img v-if="updateArticleForm.cover" :src="updateArticleForm.cover" class="avatar" />
                         <el-icon v-else class="avatar-uploader-icon">
                             <Plus />
@@ -181,8 +183,7 @@
                 </el-form-item>
                 <el-form-item label="分类" prop="categoryId">
                     <el-select v-model="updateArticleForm.categoryId" clearable placeholder="---请选择---" size="large">
-                        <el-option v-for="item in categories" :key="item.value" :label="item.label"
-                            :value="item.value" />
+                        <el-option v-for="item in categories" :key="item.value" :label="item.label" :value="item.value" />
                     </el-select>
                 </el-form-item>
                 <el-form-item label="标签" prop="tags">
@@ -201,17 +202,19 @@
 </template>
 
 <script setup>
-import { MdEditor } from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
 import { ref, reactive } from 'vue'
 import { Search, RefreshRight } from '@element-plus/icons-vue'
-import moment from 'moment'
 import { getArticlePageList, deleteArticle, publishArticle, getArticleDetail, updateArticle } from '@/api/admin/article'
-
-import { showMessage, showModel } from '@/composables/util'
 import { uploadFile } from '@/api/admin/file'
 import { getCategorySelectList } from '@/api/admin/category'
 import { searchTags, getTagSelectList } from '@/api/admin/tag'
+import moment from 'moment'
+import { showMessage, showModel } from '@/composables/util'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 // 模糊搜索的文章标题
 const searchArticleTitle = ref('')
@@ -221,9 +224,6 @@ const pickDate = ref('')
 // 查询条件：开始结束时间
 const startDate = reactive({})
 const endDate = reactive({})
-
-// 是否显示文章发布对话框
-const isArticlePublishEditorShow = ref(false)
 
 // 监听日期组件改变事件，并将开始结束时间设置到变量中
 const datepickerChange = (e) => {
@@ -282,39 +282,6 @@ const total = ref(0)
 // 每页显示的数据量，给了个默认值 10
 const size = ref(10)
 
-// 文章分类
-const categories = ref([])
-
-// 标签 select Loading 状态，默认不显示
-const tagSelectLoading = ref(false)
-// 文章标签
-const tags = ref([])
-// 渲染标签数据
-getTagSelectList().then(res => {
-    tags.value = res.data
-})
-
-// 是否显示编辑文章对话框
-const isArticleUpdateEditorShow = ref(false)
-// 编辑文章表单引用
-const updateArticleFormRef = ref(null)
-
-// 修改文章表单对象
-const updateArticleForm = reactive({
-    id: null,
-    title: '',
-    content: '请输入内容',
-    cover: '',
-    categoryId: null,
-    tags: [],
-    summary: ""
-})
-
-
-getCategorySelectList().then((e) => {
-    console.log('获取分类数据')
-    categories.value = e.data
-})
 
 // 获取分页数据
 function getTableData() {
@@ -363,11 +330,24 @@ const deleteArticleSubmit = (row) => {
     })
 }
 
+// 是否显示文章发布对话框
+const isArticlePublishEditorShow = ref(false)
 // 发布文章表单引用
 const publishArticleFormRef = ref(null)
 
 // 表单对象
 const form = reactive({
+    id: null,
+    title: '',
+    content: '请输入内容',
+    cover: '',
+    categoryId: null,
+    tags: [],
+    summary: ""
+})
+
+// 修改文章表单对象
+const updateArticleForm = reactive({
     id: null,
     title: '',
     content: '请输入内容',
@@ -409,6 +389,26 @@ const handleCoverChange = (file) => {
     })
 }
 
+// 编辑文章：上传文章封面图片
+const handleUpdateCoverChange = (file) => {
+    // 表单对象
+    let formData = new FormData()
+    // 添加 file 字段，并将文件传入 
+    formData.append('file', file.raw)
+    uploadFile(formData).then((e) => {
+        // 响参失败，提示错误消息
+        if (e.success == false) {
+            let message = e.message
+            showMessage(message, 'error')
+            return
+        }
+
+        // 成功则设置表单对象中的封面链接，并提示上传成功
+        updateArticleForm.cover = e.data.url
+        showMessage('上传成功')
+    })
+}
+
 // 编辑器图片上传
 const onUploadImg = async (files, callback) => {
     const res = await Promise.all(
@@ -427,6 +427,23 @@ const onUploadImg = async (files, callback) => {
         })
     );
 }
+
+// 文章分类
+const categories = ref([])
+getCategorySelectList().then((e) => {
+    console.log('获取分类数据')
+    categories.value = e.data
+})
+
+// 标签 select Loading 状态，默认不显示
+const tagSelectLoading = ref(false)
+// 文章标签
+const tags = ref([])
+// 渲染标签数据
+getTagSelectList().then(res => {
+    tags.value = res.data
+})
+
 
 // 根据用户输入的标签名称，远程模糊查询
 const remoteMethod = (query) => {
@@ -447,6 +464,7 @@ const remoteMethod = (query) => {
 
 // 发布文章
 const publishArticleSubmit = () => {
+    // isArticlePublishEditorShow.value = true
     console.log('提交 md 内容：' + form.content)
     // 校验表单
     publishArticleFormRef.value.validate((valid) => {
@@ -479,26 +497,11 @@ const publishArticleSubmit = () => {
     })
 }
 
-// 编辑文章：上传文章封面图片
-const handleUpdateCoverChange = (file) => {
-    // 表单对象
-    let formData = new FormData()
-    // 添加 file 字段，并将文件传入 
-    formData.append('file', file.raw)
-    uploadFile(formData).then((e) => {
-        // 响参失败，提示错误消息
-        if (e.success == false) {
-            let message = e.message
-            showMessage(message, 'error')
-            return
-        }
 
-        // 成功则设置表单对象中的封面链接，并提示上传成功
-        updateArticleForm.cover = e.data.url
-        showMessage('上传成功')
-    })
-}
-
+// 是否显示编辑文章对话框
+const isArticleUpdateEditorShow = ref(false)
+// 编辑文章表单引用
+const updateArticleFormRef = ref(null)
 // 编辑文章按钮点击事件
 const showArticleUpdateEditor = (row) => {
     // 显示编辑文章对话框
@@ -519,9 +522,9 @@ const showArticleUpdateEditor = (row) => {
     })
 }
 
-
 // 保存文章
 const updateSubmit = () => {
+    console.log('tijiao')
     updateArticleFormRef.value.validate((valid) => {
         // 校验表单
         if (!valid) {
@@ -547,6 +550,11 @@ const updateSubmit = () => {
     })
 }
 
+
+// 跳转文章详情页
+const goArticleDetailPage = (articleId) => {
+    router.push('/article/' + articleId)
+}
 </script>
 
 <style scoped>
